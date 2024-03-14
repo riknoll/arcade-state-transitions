@@ -1,0 +1,15 @@
+{
+    "name": "my-project",
+    "version": "0.0.0",
+    "files": [
+        "main.ts"
+    ],
+    "supportedTargets": [
+        "arcade"
+    ],
+    "dependencies": {
+        "device": "*",
+        "arcade-extension-utils": "github:riknoll/arcade-extension-utils#v0.0.1"
+    },
+    "testDependencies": {}
+}
