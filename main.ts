@@ -5,18 +5,60 @@ namespace stateTransitions {
     type SpriteHandler = ((sprite: Sprite) => void);
     type GlobalHandler = (() => void);
 
+    export enum Button {
+        //% block="A"
+        A = ControllerButton.A,
+        //% block="B"
+        B = ControllerButton.B,
+        //% block="up"
+        Up = ControllerButton.Up,
+        //% block="down"
+        Down = ControllerButton.Down,
+        //% block="right"
+        Right = ControllerButton.Right,
+        //% block="left"
+        Left = ControllerButton.Left,
+        //% block="menu"
+        Menu = 999
+    }
+
+    export enum Player {
+        //% block="player 1"
+        One,
+        //% block="player 2"
+        Two,
+        //% block="player 3"
+        Three,
+        //% block="player 4"
+        Four
+    }
+
+    export enum TransitionEvent {
+        //% block="enter"
+        Enter,
+        //% block="exit"
+        Exit,
+        //% block="update"
+        Update,
+        //% block="async update (forever)"
+        AsyncUpdate
+    }
+
     export class State {
         protected sprites: SpriteState[] = [];
         globalState = new GlobalState();
+        protected registeredButtons: controller.Button[] = [];
 
         constructor() {
             game.onUpdate(() => {
                 this.update();
-            })
+            });
         }
 
         update() {
             let shouldFilter = false;
+
+            this.globalState.update();
 
             for (const sprite of this.sprites) {
                 if (sprite.sprite.flags & sprites.Flag.Destroyed) {
@@ -48,17 +90,36 @@ namespace stateTransitions {
 
             return undefined;
         }
-    }
 
-    export enum TransitionEvent {
-        Enter,
-        Exit,
-        Update,
-        AsyncUpdate
+        registerButtonEvents(button: controller.Button) {
+            if (this.registeredButtons.indexOf(button) !== -1) {
+                return;
+            }
+
+            this.registeredButtons.push(button);
+
+            this.registerButtonEvent(button, ControllerButtonEvent.Pressed);
+            this.registerButtonEvent(button, ControllerButtonEvent.Released);
+            this.registerButtonEvent(button, ControllerButtonEvent.Repeated);
+        }
+
+        protected registerButtonEvent(button: controller.Button, event: ControllerButtonEvent) {
+            button.addEventListener(event, () => {
+                this.globalState.fireButtonEvent(button, event);
+                for (const state of this.sprites) {
+                    state.fireButtonEvent(button, event);
+                }
+            });
+        }
     }
 
     class EventHandler<U> {
         constructor(public kind: TransitionEvent, public state: string, public handler: U) {
+        }
+    }
+
+    class ButtonEventHandler<U> {
+        constructor(public button: controller.Button, public event: ControllerButtonEvent, public state: string, public handler: U) {
         }
     }
 
@@ -68,7 +129,9 @@ namespace stateTransitions {
         protected nextStateTransitionTime: number;
         protected nextState: string;
         protected handlers: EventHandler<U>[] = [];
+        protected buttonHandlers: ButtonEventHandler<U>[] = [];
         protected runningAsync = false;
+        protected stateChangeHandler: (previous: string, current: string) => void;
 
         constructor() {
         }
@@ -86,7 +149,7 @@ namespace stateTransitions {
                 if (asyncHandler) {
                     this.runningAsync = true;
                     control.runInParallel(() => {
-                        this.runHandler(asyncHandler);
+                        this.runHandler(asyncHandler.handler);
                         this.runningAsync = false;
                     });
                 }
@@ -99,10 +162,16 @@ namespace stateTransitions {
 
             if (this.state === state) return;
 
+            const previous = this.state;
+
             this.fireEvent(TransitionEvent.Exit);
 
             this.state = state;
             this.stateStartTime = game.runtime();
+
+            if (this.stateChangeHandler) {
+                this.stateChangeHandler(previous || "", this.state)
+            }
 
             this.fireEvent(TransitionEvent.Enter);
         }
@@ -120,6 +189,33 @@ namespace stateTransitions {
             this.nextStateTransitionTime = game.runtime() + millis;
         }
 
+        onEvent(event: TransitionEvent, state: string, handler: U) {
+            const existing = this.getHandler(event, state);
+
+            if (existing) {
+                existing.handler = handler;
+            }
+            else {
+                this.handlers.push(new EventHandler(event, state, handler));
+            }
+        }
+
+        onButtonEvent(button: controller.Button, event: ControllerButtonEvent, state: string, handler: U) {
+            _state().registerButtonEvents(button);
+            const existing = this.getButtonHandler(button, event, state);
+
+            if (existing) {
+                existing.handler = handler;
+            }
+            else {
+                this.buttonHandlers.push(new ButtonEventHandler(button, event, state, handler));
+            }
+        }
+
+        onStateChange(handler: (previous: string, next: string) => void) {
+            this.stateChangeHandler = handler;
+        }
+
         protected getHandler(event: TransitionEvent, state?: string) {
             state = state || this.state;
 
@@ -132,16 +228,35 @@ namespace stateTransitions {
             return undefined;
         }
 
+        protected getButtonHandler(button: controller.Button, event: ControllerButtonEvent, state?: string) {
+            state = state || this.state;
+
+            for (const handler of this.buttonHandlers) {
+                if (handler.state === state && handler.button === button && handler.event === event) {
+                    return handler;
+                }
+            }
+
+            return undefined;
+        }
+
         protected fireEvent(event: TransitionEvent) {
             const handler = this.getHandler(event);
 
             if (handler) {
-                this.runHandler(handler);
+                this.runHandler(handler.handler);
             }
         }
 
-        protected runHandler(handler: EventHandler<U>): void {
+        fireButtonEvent(button: controller.Button, event: ControllerButtonEvent) {
+            const handler = this.getButtonHandler(button, event);
+            if (handler) {
+                this.runHandler(handler.handler);
+            }
+        }
 
+        protected runHandler(handler: U): void {
+            // Subclass
         }
     }
 
@@ -150,19 +265,8 @@ namespace stateTransitions {
             super();
         }
 
-        onEvent(event: TransitionEvent, state: string, handler: SpriteHandler) {
-            const existing = this.getHandler(event, state);
-
-            if (existing) {
-                existing.handler = handler;
-            }
-            else {
-                this.handlers.push(new EventHandler(event, state, handler));
-            }
-        }
-
-        runHandler(handler: EventHandler<SpriteHandler>) {
-            handler.handler(this.sprite);
+        runHandler(handler: SpriteHandler) {
+            handler(this.sprite);
         }
     }
 
@@ -171,19 +275,8 @@ namespace stateTransitions {
             super();
         }
 
-        onEvent(event: TransitionEvent, state: string, handler: GlobalHandler) {
-            const existing = this.getHandler(event, state);
-
-            if (existing) {
-                existing.handler = handler;
-            }
-            else {
-                this.handlers.push(new EventHandler(event, state, handler));
-            }
-        }
-
-        runHandler(handler: EventHandler<GlobalHandler>) {
-            handler.handler();
+        runHandler(handler: GlobalHandler) {
+            handler();
         }
     }
 
@@ -261,6 +354,35 @@ namespace stateTransitions {
         state.onEvent(event, eventState, handler);
     }
 
+    //% blockId=state_transitions_spriteOnButtonEvent
+    //% block="$target on $player $button button $event in state $eventState with $sprite"
+    //% target.shadow=variables_get
+    //% target.defl=mySprite
+    //% eventState.shadow=state_transitions_spriteStateShadow
+    //% group="Sprites"
+    //% handlerStatement
+    //% draggableParameters="reporter"
+    //% weight=68
+    export function spriteOnButtonEvent(target: Sprite, eventState: string, player: Player, button: Button, event: ControllerButtonEvent, handler: (sprite: Sprite) => void) {
+        const state = _state().getStateForSprite(target, true);
+
+        state.onButtonEvent(resolveButton(player, button), event, eventState, handler);
+    }
+
+    //% blockId=state_transitions_spriteOnStateChange
+    //% block="$target on state change from $oldState to $newState"
+    //% target.shadow=variables_get
+    //% target.defl=mySprite
+    //% group="Sprites"
+    //% handlerStatement
+    //% draggableParameters="reporter"
+    //% weight=66
+    export function spriteOnStateChange(target: Sprite, handler: (oldState: string, newState: string) => void) {
+        const state = _state().getStateForSprite(target, true);
+
+        state.onStateChange(handler);
+    }
+
     //% blockId=state_transitions_spriteStateIs
     //% block="$sprite state is $toCheck"
     //% sprite.shadow=variables_get
@@ -312,6 +434,28 @@ namespace stateTransitions {
         _state().globalState.onEvent(event, eventState, handler);
     }
 
+    //% blockId=state_transitions_onButtonEvent
+    //% block="on $player $button button $event in global state $eventState"
+    //% eventState.shadow=state_transitions_globalStateShadow
+    //% group="Global"
+    //% weight=68
+    export function onButtonEvent(eventState: string, player: Player, button: Button, event: ControllerButtonEvent, handler: () => void) {
+        const state = _state().globalState
+
+        state.onButtonEvent(resolveButton(player, button), event, eventState, handler);
+    }
+
+    //% blockId=state_transitions_onStateChange
+    //% block="on global state change from $oldState to $newState"
+    //% group="Global"
+    //% draggableParameters="reporter"
+    //% weight=66
+    export function onStateChange(handler: (oldState: string, newState: string) => void) {
+        const state = _state().globalState;
+
+        state.onStateChange(handler);
+    }
+
     //% blockId=state_transitions_stateIs
     //% block="global state is $toCheck"
     //% toCheck.shadow=state_transitions_globalStateShadow
@@ -337,5 +481,58 @@ namespace stateTransitions {
     //% name.fieldOptions.key="_globalStateShadow"
     export function _globalStateShadow(name: string) {
         return name
+    }
+
+    function resolveButton(player: Player, button: Button) {
+        let realPlayer: controller.Controller;
+
+        switch (player) {
+            case Player.One:
+                realPlayer = controller.player1;
+                break;
+            case Player.Two:
+                realPlayer = controller.player2;
+                break;
+            case Player.Three:
+                realPlayer = controller.player3;
+                break;
+            case Player.Four:
+                realPlayer = controller.player4;
+                break;
+            default:
+                throw "Invalid player number!";
+        }
+
+
+        let realButton: controller.Button;
+
+        switch (button) {
+            case Button.A:
+                realButton = realPlayer.A;
+                break;
+            case Button.B:
+                realButton = realPlayer.B;
+                break;
+            case Button.Down:
+                realButton = realPlayer.down;
+                break;
+            case Button.Left:
+                realButton = realPlayer.left;
+                break;
+            case Button.Right:
+                realButton = realPlayer.right;
+                break;
+            case Button.Up:
+                realButton = realPlayer.up;
+                break;
+            case Button.Menu:
+                // Menu is always player 1
+                realButton = controller.menu;
+                break;
+            default:
+                throw "Invalid button number!";
+        }
+
+        return realButton;
     }
 }
