@@ -412,7 +412,7 @@ namespace stateTransitions {
     }
 
     //% blockId=state_transitions_spriteOnStateEvent
-    //% block="$target on state $event $eventState with $sprite||with weight $weight"
+    //% block="$target on state $event $eventState with $sprite"
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -420,14 +420,14 @@ namespace stateTransitions {
     //% handlerStatement
     //% draggableParameters="reporter"
     //% weight=70
-    export function spriteOnStateEvent(target: Sprite, event: TransitionEvent, eventState: string, handler: (sprite: Sprite) => void, weight?: number) {
+    export function spriteOnStateEvent(target: Sprite, event: TransitionEvent, eventState: string, handler: (sprite: Sprite) => void) {
         const state = _state().getStateForSprite(target, true);
 
-        state.onEvent(event, eventState, handler, weight);
+        state.onEvent(event, eventState, handler);
     }
 
     //% blockId=state_transitions_spriteOnButtonEvent
-    //% block="$target on $player $button button $event in state $eventState with $sprite||with weight $weight"
+    //% block="$target on $player $button button $event in state $eventState with $sprite"
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -435,10 +435,10 @@ namespace stateTransitions {
     //% handlerStatement
     //% draggableParameters="reporter"
     //% weight=68
-    export function spriteOnButtonEvent(target: Sprite, eventState: string, player: Player, button: Button, event: ControllerButtonEvent, handler: (sprite: Sprite) => void, weight?: number) {
+    export function spriteOnButtonEvent(target: Sprite, eventState: string, player: Player, button: Button, event: ControllerButtonEvent, handler: (sprite: Sprite) => void) {
         const state = _state().getStateForSprite(target, true);
 
-        state.onButtonEvent(resolveButton(player, button), event, eventState, handler, weight);
+        state.onButtonEvent(resolveButton(player, button), event, eventState, handler);
     }
 
     //% blockId=state_transitions_spriteOnStateChange
@@ -553,6 +553,36 @@ namespace stateTransitions {
     //% name.fieldOptions.key="_globalStateShadow"
     export function _globalStateShadow(name: string) {
         return name
+    }
+
+    //% blockId=state_transitions_spriteOnBackgroundStateEvent
+    //% block="$target add state listener $event $eventState weight $weight with $sprite"
+    //% target.shadow=variables_get
+    //% target.defl=mySprite
+    //% eventState.shadow=state_transitions_spriteStateShadow
+    //% group="Background"
+    //% handlerStatement
+    //% draggableParameters="reporter"
+    //% weight=70
+    export function spriteOnBackgroundStateEvent(target: Sprite, event: TransitionEvent, eventState: string, weight: number, handler: (sprite: Sprite) => void) {
+        const state = _state().getStateForSprite(target, true);
+
+        state.onEvent(event, eventState, handler, weight);
+    }
+
+    //% blockId=state_transitions_spriteOnBackgroundButtonEvent
+    //% block="$target add button listener $player $button $event in state $eventState weight $weight with $sprite"
+    //% target.shadow=variables_get
+    //% target.defl=mySprite
+    //% eventState.shadow=state_transitions_spriteStateShadow
+    //% group="Background"
+    //% handlerStatement
+    //% draggableParameters="reporter"
+    //% weight=68
+    export function spriteOnBackgroundButtonEvent(target: Sprite, eventState: string, player: Player, button: Button, event: ControllerButtonEvent, weight: number, handler: (sprite: Sprite) => void) {
+        const state = _state().getStateForSprite(target, true);
+
+        state.onButtonEvent(resolveButton(player, button), event, eventState, handler, weight);
     }
 
     function resolveButton(player: Player, button: Button) {
