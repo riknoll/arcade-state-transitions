@@ -556,7 +556,7 @@ namespace stateTransitions {
     }
 
     //% blockId=state_transitions_spriteOnBackgroundStateEvent
-    //% block="$target add state listener $event $eventState weight $weight with $sprite"
+    //% block="$target add listener for $event state $eventState weight $weight with $sprite"
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -571,7 +571,7 @@ namespace stateTransitions {
     }
 
     //% blockId=state_transitions_spriteOnBackgroundButtonEvent
-    //% block="$target add button listener $player $button $event in state $eventState weight $weight with $sprite"
+    //% block="$target add listener for $player $button $event in state $eventState weight $weight with $sprite"
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
