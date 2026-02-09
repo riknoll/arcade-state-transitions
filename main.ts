@@ -113,13 +113,48 @@ namespace stateTransitions {
         }
     }
 
+    class HandlerEntry<U> {
+        constructor(public weight: number, public handler: U) {}
+    }
+
     class EventHandler<U> {
+        backgroundHandlers: HandlerEntry<U>[];
         constructor(public kind: TransitionEvent, public state: string, public handler: U) {
+            this.backgroundHandlers = [];
+        }
+
+        insertBackgroundHandler(weight: number, handler: U) {
+            const newEntry = new HandlerEntry(weight, handler);
+
+            for (let i = 0; i < this.backgroundHandlers.length; i++) {
+                if (this.backgroundHandlers[i].weight < weight) {
+                    this.backgroundHandlers.insertAt(i, newEntry)
+                    return;
+                }
+            }
+
+            this.backgroundHandlers.push(newEntry);
         }
     }
 
     class ButtonEventHandler<U> {
+        backgroundHandlers: HandlerEntry<U>[];
+
         constructor(public button: controller.Button, public event: ControllerButtonEvent, public state: string, public handler: U) {
+            this.backgroundHandlers = [];
+        }
+
+        insertBackgroundHandler(weight: number, handler: U) {
+            const newEntry = new HandlerEntry(weight, handler);
+
+            for (let i = 0; i < this.backgroundHandlers.length; i++) {
+                if (this.backgroundHandlers[i].weight < weight) {
+                    this.backgroundHandlers.insertAt(i, newEntry)
+                    return;
+                }
+            }
+
+            this.backgroundHandlers.push(newEntry);
         }
     }
 
@@ -132,6 +167,8 @@ namespace stateTransitions {
         protected buttonHandlers: ButtonEventHandler<U>[] = [];
         protected runningAsync = false;
         protected stateChangeHandler: (previous: string, current: string) => void;
+
+        protected transitioningState = false;
 
         constructor() {
         }
@@ -161,13 +198,26 @@ namespace stateTransitions {
             this.nextState = undefined;
 
             if (this.state === state) return;
+            if (this.transitioningState) {
+                this.nextState = state;
+                return;
+            }
+
+            this.transitioningState = true;
 
             const previous = this.state;
 
             this.fireEvent(TransitionEvent.Exit);
 
+            // check to see if the state was changed in the exit event
+            if (this.nextState && this.nextStateTransitionTime === undefined) {
+                state = this.nextState;
+                this.nextState = undefined;
+            }
+
             this.state = state;
             this.stateStartTime = game.runtime();
+            this.transitioningState = false;
 
             if (this.stateChangeHandler) {
                 this.stateChangeHandler(previous || "", this.state)
@@ -189,26 +239,36 @@ namespace stateTransitions {
             this.nextStateTransitionTime = game.runtime() + millis;
         }
 
-        onEvent(event: TransitionEvent, state: string, handler: U) {
-            const existing = this.getHandler(event, state);
+        onEvent(event: TransitionEvent, state: string, handler: U, weight?: number) {
+            let entry = this.getHandler(event, state);
 
-            if (existing) {
-                existing.handler = handler;
+            if (!entry) {
+                entry = new EventHandler(event, state, undefined);
+                this.handlers.push(entry);
+            }
+
+            if (weight !== undefined) {
+                entry.insertBackgroundHandler(weight, handler);
             }
             else {
-                this.handlers.push(new EventHandler(event, state, handler));
+                entry.handler = handler;
             }
         }
 
-        onButtonEvent(button: controller.Button, event: ControllerButtonEvent, state: string, handler: U) {
+        onButtonEvent(button: controller.Button, event: ControllerButtonEvent, state: string, handler: U, weight?: number) {
             _state().registerButtonEvents(button);
-            const existing = this.getButtonHandler(button, event, state);
+            let entry = this.getButtonHandler(button, event, state);
 
-            if (existing) {
-                existing.handler = handler;
+            if (!entry) {
+                entry = new ButtonEventHandler(button, event, state, undefined);
+                this.buttonHandlers.push(entry);
+            }
+
+            if (weight !== undefined) {
+                entry.insertBackgroundHandler(weight, handler);
             }
             else {
-                this.buttonHandlers.push(new ButtonEventHandler(button, event, state, handler));
+                entry.handler = handler;
             }
         }
 
@@ -244,14 +304,26 @@ namespace stateTransitions {
             const handler = this.getHandler(event);
 
             if (handler) {
-                this.runHandler(handler.handler);
+                if (handler.handler) {
+                    this.runHandler(handler.handler);
+                }
+
+                for (const backgroundHandler of handler.backgroundHandlers) {
+                    this.runHandler(backgroundHandler.handler);
+                }
             }
         }
 
         fireButtonEvent(button: controller.Button, event: ControllerButtonEvent) {
             const handler = this.getButtonHandler(button, event);
             if (handler) {
-                this.runHandler(handler.handler);
+                if (handler.handler) {
+                    this.runHandler(handler.handler);
+                }
+
+                for (const backgroundHandler of handler.backgroundHandlers) {
+                    this.runHandler(backgroundHandler.handler);
+                }
             }
         }
 
@@ -340,7 +412,7 @@ namespace stateTransitions {
     }
 
     //% blockId=state_transitions_spriteOnStateEvent
-    //% block="$target on state $event $eventState with $sprite"
+    //% block="$target on state $event $eventState with $sprite||with weight $weight"
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -348,14 +420,14 @@ namespace stateTransitions {
     //% handlerStatement
     //% draggableParameters="reporter"
     //% weight=70
-    export function spriteOnStateEvent(target: Sprite, event: TransitionEvent, eventState: string, handler: (sprite: Sprite) => void) {
+    export function spriteOnStateEvent(target: Sprite, event: TransitionEvent, eventState: string, handler: (sprite: Sprite) => void, weight?: number) {
         const state = _state().getStateForSprite(target, true);
 
-        state.onEvent(event, eventState, handler);
+        state.onEvent(event, eventState, handler, weight);
     }
 
     //% blockId=state_transitions_spriteOnButtonEvent
-    //% block="$target on $player $button button $event in state $eventState with $sprite"
+    //% block="$target on $player $button button $event in state $eventState with $sprite||with weight $weight"
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -363,10 +435,10 @@ namespace stateTransitions {
     //% handlerStatement
     //% draggableParameters="reporter"
     //% weight=68
-    export function spriteOnButtonEvent(target: Sprite, eventState: string, player: Player, button: Button, event: ControllerButtonEvent, handler: (sprite: Sprite) => void) {
+    export function spriteOnButtonEvent(target: Sprite, eventState: string, player: Player, button: Button, event: ControllerButtonEvent, handler: (sprite: Sprite) => void, weight?: number) {
         const state = _state().getStateForSprite(target, true);
 
-        state.onButtonEvent(resolveButton(player, button), event, eventState, handler);
+        state.onButtonEvent(resolveButton(player, button), event, eventState, handler, weight);
     }
 
     //% blockId=state_transitions_spriteOnStateChange
