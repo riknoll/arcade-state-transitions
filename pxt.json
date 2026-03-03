@@ -2,6 +2,7 @@
     "name": "arcade-state-transitions",
     "version": "0.1.0",
     "files": [
+        "README.md",
         "state.ts",
         "api.ts",
         "main.ts",
