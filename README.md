@@ -2,6 +2,8 @@
 
 A minimal state machine extension for Microsoft MakeCode Arcade.
 
+This extension is divided into two parse: global state and sprite state.
+
 ### Global state
 
 A lot of times when you are making a game, you'll have multiple "states" that your game is moving through.
