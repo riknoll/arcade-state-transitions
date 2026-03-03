@@ -2,6 +2,8 @@
     "name": "arcade-state-transitions",
     "version": "0.0.4",
     "files": [
+        "state.ts",
+        "api.ts",
         "main.ts"
     ],
     "supportedTargets": [
