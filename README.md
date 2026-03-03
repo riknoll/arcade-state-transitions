@@ -2,7 +2,7 @@
 
 A minimal state machine extension for Microsoft MakeCode Arcade.
 
-This extension is divided into two parse: global state and sprite state.
+This extension is divided into two parts: **global** state and **sprite** state.
 
 ### Global state
 
