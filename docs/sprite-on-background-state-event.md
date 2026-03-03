@@ -3,8 +3,7 @@
 Adds a background listener for a state event on a sprite. This is functionally the same as spriteOnStateEvent, but the handler will not be overwritten if you register more than one for the same event/state combination, instead they will all run in order of weight (lowest to highest). This allows you to have multiple handlers for the same event/state without them interfering with each other. If the sprite is not currently being tracked by the state system, it will be added. Background handlers run AFTER all regular handlers.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteOnBackgroundStateEvent(mySprite, stateTransitions.TransitionEvent.Enter, "", 0, function(sprite: Sprite) {
+stateTransitions.spriteOnBackgroundStateEvent(sprites.create(img`.`, SpriteKind.Player), stateTransitions.TransitionEvent.Enter, "", 0, function(sprite: Sprite) {
 
 })
 ```

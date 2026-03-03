@@ -3,8 +3,7 @@
 Returns the time in milliseconds since the sprite's state last changed. Returns -1 if the sprite is not being tracked by the state system.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteTimeInState(mySprite)
+stateTransitions.spriteTimeInState(sprites.create(img`.`, SpriteKind.Player))
 ```
 
 ## Parameters

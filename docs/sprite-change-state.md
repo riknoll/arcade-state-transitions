@@ -3,8 +3,7 @@
 Changes the state of the given sprite to the new state. If millis is provided, the state will change after the given time instead of immediately.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteChangeState(mySprite, "")
+stateTransitions.spriteChangeState(sprites.create(img`.`, SpriteKind.Player), "")
 ```
 
 ## Parameters

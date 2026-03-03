@@ -3,8 +3,7 @@
 Runs code when a button event happens in a given state, as a background listener. This is functionally the same as spriteOnButtonEvent, but the handler will not be overwritten if you register more than one for the same state/event/button combination, instead they will all run in order of weight (lowest to highest). This allows you to have multiple handlers for the same state/event/button without them interfering with each other. If the sprite is not currently being tracked by the state system, it will be added. Background handlers run AFTER all regular handlers.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteOnBackgroundButtonEvent(mySprite, "", stateTransitions.Player.One, stateTransitions.Button.A, ControllerButtonEvent.Pressed, 0, function(sprite: Sprite) {
+stateTransitions.spriteOnBackgroundButtonEvent(sprites.create(img`.`, SpriteKind.Player), "", stateTransitions.Player.One, stateTransitions.Button.A, ControllerButtonEvent.Pressed, 0, function(sprite: Sprite) {
 
 })
 ```

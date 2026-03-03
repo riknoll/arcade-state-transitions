@@ -3,8 +3,7 @@
 Gets the current state of the sprite. Returns undefined if the sprite is not being tracked by the state system.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteState(mySprite)
+stateTransitions.spriteState(sprites.create(img`.`, SpriteKind.Player))
 ```
 
 ## Parameters

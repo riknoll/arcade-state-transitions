@@ -3,8 +3,7 @@
 Checks if the sprite is currently in the given state. Returns false if the sprite is not being tracked by the state system.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteStateIs(mySprite, "")
+stateTransitions.spriteStateIs(sprites.create(img`.`, SpriteKind.Player), "")
 ```
 
 ## Parameters

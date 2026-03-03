@@ -3,8 +3,7 @@
 Runs code when a button event happens in a given state. If the sprite is not currently being tracked by the state system, it will be added. Registering another handler for the same state/event/button combination will overwrite the previously registered handler.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteOnButtonEvent(mySprite, "", stateTransitions.Player.One, stateTransitions.Button.A, ControllerButtonEvent.Pressed, function(sprite: Sprite) {
+stateTransitions.spriteOnButtonEvent(sprites.create(img`.`, SpriteKind.Player), "", stateTransitions.Player.One, stateTransitions.Button.A, ControllerButtonEvent.Pressed, function(sprite: Sprite) {
 
 })
 ```

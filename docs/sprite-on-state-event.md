@@ -3,8 +3,7 @@
 Runs code when a sprite enters, exits, or updates in a given state. If the sprite is not currently being tracked by the state system, it will be added. Registering another handler for the same state/event will overwrite the previously registered handler.
 
 ```sig
-let mySprite: Sprite;
-stateTransitions.spriteOnStateEvent(mySprite, stateTransitions.TransitionEvent.Enter, "", function(sprite: Sprite) {
+stateTransitions.spriteOnStateEvent(sprites.create(img`.`, SpriteKind.Player), stateTransitions.TransitionEvent.Enter, "", function(sprite: Sprite) {
 
 })
 ```
