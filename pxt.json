@@ -4,7 +4,25 @@
     "files": [
         "state.ts",
         "api.ts",
-        "main.ts"
+        "main.ts",
+        "docs/sprite-state.md",
+        "docs/sprite-time-in-state.md",
+        "docs/sprite-change-state.md",
+        "docs/sprite-on-state-event.md",
+        "docs/sprite-on-button-event.md",
+        "docs/sprite-on-state-change.md",
+        "docs/sprite-state-is.md",
+        "docs/state.md",
+        "docs/time-in-state.md",
+        "docs/change-state.md",
+        "docs/on-state-event.md",
+        "docs/on-button-event.md",
+        "docs/on-state-change.md",
+        "docs/state-is.md",
+        "docs/_sprite-state-shadow.md",
+        "docs/_global-state-shadow.md",
+        "docs/sprite-on-background-state-event.md",
+        "docs/sprite-on-background-button-event.md"
     ],
     "supportedTargets": [
         "arcade"

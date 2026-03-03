@@ -11,6 +11,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteState
     //% block="$sprite state"
+    //% help=github:arcade-state-transitions/docs/sprite-state
     //% sprite.shadow=variables_get
     //% sprite.defl=mySprite
     //% group="Sprites"
@@ -34,6 +35,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteTimeInState
     //% block="$sprite time since state change"
+    //% help=github:arcade-state-transitions/docs/sprite-time-in-state
     //% sprite.shadow=variables_get
     //% sprite.defl=mySprite
     //% group="Sprites"
@@ -58,6 +60,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteChangeState
     //% block="$sprite change state to $newState||in $millis|ms"
+    //% help=github:arcade-state-transitions/docs/sprite-change-state
     //% sprite.shadow=variables_get
     //% sprite.defl=mySprite
     //% newState.shadow=state_transitions_spriteStateShadow
@@ -88,6 +91,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteOnStateEvent
     //% block="$target on state $event $eventState with $sprite"
+    //% help=github:arcade-state-transitions/docs/sprite-on-state-event
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -116,6 +120,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteOnButtonEvent
     //% block="$target on $player $button button $event in state $eventState with $sprite"
+    //% help=github:arcade-state-transitions/docs/sprite-on-button-event
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -141,6 +146,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteOnStateChange
     //% block="$target on state change from $oldState to $newState for $sprite"
+    //% help=github:arcade-state-transitions/docs/sprite-on-state-change
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% group="Sprites"
@@ -163,6 +169,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteStateIs
     //% block="$sprite state is $toCheck"
+    //% help=github:arcade-state-transitions/docs/sprite-state-is
     //% sprite.shadow=variables_get
     //% sprite.defl=mySprite
     //% toCheck.shadow=state_transitions_spriteStateShadow
@@ -180,6 +187,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_state
     //% block="global state"
+    //% help=github:arcade-state-transitions/docs/state
     //% group="Global"
     //% weight=100
     export function state(): string {
@@ -194,6 +202,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_timeInState
     //% block="time since global state change"
+    //% help=github:arcade-state-transitions/docs/time-in-state
     //% group="Global"
     //% weight=90
     export function timeInState(): number {
@@ -215,6 +224,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_changeState
     //% block="change global state to $newState||in $millis|ms"
+    //% help=github:arcade-state-transitions/docs/change-state
     //% newState.shadow=state_transitions_globalStateShadow
     //% millis.shadow=timePicker
     //% group="Global"
@@ -239,6 +249,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_onStateEvent
     //% block="on global state $event $eventState"
+    //% help=github:arcade-state-transitions/docs/on-state-event
     //% eventState.shadow=state_transitions_globalStateShadow
     //% group="Global"
     //% weight=70
@@ -259,6 +270,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_onButtonEvent
     //% block="on $player $button button $event in global state $eventState"
+    //% help=github:arcade-state-transitions/docs/on-button-event
     //% eventState.shadow=state_transitions_globalStateShadow
     //% group="Global"
     //% weight=68
@@ -278,6 +290,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_onStateChange
     //% block="on global state change from $oldState to $newState"
+    //% help=github:arcade-state-transitions/docs/on-state-change
     //% group="Global"
     //% draggableParameters="reporter"
     //% weight=66
@@ -296,6 +309,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_stateIs
     //% block="global state is $toCheck"
+    //% help=github:arcade-state-transitions/docs/state-is
     //% toCheck.shadow=state_transitions_globalStateShadow
     //% group="Global"
     //% weight=60
@@ -310,6 +324,7 @@ namespace stateTransitions {
      * @param name The name of the state
      */
     //% block="$name"
+    //% help=github:arcade-state-transitions/docs/_global-state-shadow
     //% blockId=state_transitions_spriteStateShadow
     //% blockHidden=true shim=TD_ID
     //% name.fieldEditor="autocomplete" name.fieldOptions.decompileLiterals=true
@@ -348,6 +363,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteOnBackgroundStateEvent
     //% block="$target add listener for $event state $eventState weight $weight with $sprite"
+    //% help=github:arcade-state-transitions/docs/sprite-on-background-state-event
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
@@ -378,6 +394,7 @@ namespace stateTransitions {
      */
     //% blockId=state_transitions_spriteOnBackgroundButtonEvent
     //% block="$target add listener for $player $button $event in state $eventState weight $weight with $sprite"
+    //% help=github:arcade-state-transitions/docs/sprite-on-background-button-event
     //% target.shadow=variables_get
     //% target.defl=mySprite
     //% eventState.shadow=state_transitions_spriteStateShadow
