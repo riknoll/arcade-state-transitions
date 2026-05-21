@@ -30,7 +30,7 @@
     ],
     "dependencies": {
         "device": "*",
-        "arcade-extension-utils": "github:riknoll/arcade-extension-utils#v0.0.1"
+        "arcade-extension-utils": "github:riknoll/arcade-extension-utils#v0.1.0"
     },
     "testDependencies": {}
 }
